@@ -1,0 +1,27 @@
+# Secrets & Credentials
+.env
+session.json
+
+# Scratch & Temporary output files
+scratch/
+*.pdf
+*.lock
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE & Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo

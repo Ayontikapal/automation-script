@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recruitment & Outreach Automation Analytics</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --card-bg: rgba(23, 32, 54, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-indigo: #6366f1;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 10% 20%, #172033 0%, #0b0f19 90%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 32px 24px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-title p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 9999px;
+    }
+
+    .badge-live::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Metric Cards Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .metric-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.2);
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--card-accent, #6366f1), transparent);
+    }
+
+    .metric-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 10px 0 4px;
+      letter-spacing: -1px;
+    }
+
+    .metric-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Charts Section */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 992px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .chart-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Table Section */
+    .section-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      padding: 14px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .badge-sent {
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .badge-replied {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-pending {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-title">
+        <h1>Recruitment Outreach & Automation Pipeline</h1>
+        <p>Real-time analytics for US C2C contract outreach, resume tailoring, and recruiter engagement</p>
+      </div>
+      <div>
+        <span class="badge-live">Live Pipeline Active &bull; 2026-10-24 10:14:15</span>
+      </div>
+    </header>
+
+    <!-- Top Metric Cards -->
+    <section class="metrics-grid">
+      <div class="metric-card" style="--card-accent: #6366f1;">
+        <div class="metric-label">Total Scraped Leads</div>
+        <div class="metric-value">4</div>
+        <div class="metric-sub">0 awaiting outreach dispatch</div>
+      </div>
+
+      <div class="metric-card" style="--card-accent: #06b6d4;">
+        <div class="metric-label">Outreach Dispatched</div>
+        <div class="metric-value">10</div>
+        <div class="metric-sub">5 threaded follow-ups sent</div>
+      </div>
+
+      <div class="metric-card" style="--card-accent: #10b981;">
+        <div class="metric-label">Recruiter Replies</div>
+        <div class="metric-value">4</div>
+        <div class="metric-sub">Verified via IMAP Inbox Sync</div>
+      </div>
+
+      <div class="metric-card" style="--card-accent: #f59e0b;">
+        <div class="metric-label">Conversion Reply Rate</div>
+        <div class="metric-value">40.0%</div>
+        <div class="metric-sub">Average across all candidate portfolios</div>
+      </div>
+    </section>
+
+    <!-- Charts Row -->
+    <section class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">
+          <span>Candidate Outreach & Response Performance</span>
+          <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">Sent vs Replies</span>
+        </div>
+        <canvas id="candidateBarChart" height="120"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">
+          <span>Lead Status Distribution</span>
+          <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">Pipeline Breakdown</span>
+        </div>
+        <canvas id="statusDoughnutChart" height="180"></canvas>
+      </div>
+    </section>
+
+    <!-- Candidate Performance Table -->
+    <section class="section-card">
+      <div class="chart-title">
+        <span>Registered Candidate Profiles & Outreach Telemetry</span>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>Primary Target Role</th>
+              <th>Emails Sent</th>
+              <th>Follow-Ups</th>
+              <th>Replies Detected</th>
+              <th>Conversion Rate</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td style="font-weight: 600;">Safi Ahmed</td>
+              <td style="color: var(--text-muted);">Java Full Stack Developer</td>
+              <td>5</td>
+              <td>5</td>
+              <td style="color: #34d399; font-weight: 600;">2</td>
+              <td><span style="font-weight: 700; color: #818cf8;">40.0%</span></td>
+              <td><span class="badge badge-sent">Active</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 600;">Tanuja Sharma</td>
+              <td style="color: var(--text-muted);">Data Scientist / ML Engineer</td>
+              <td>1</td>
+              <td>0</td>
+              <td style="color: #34d399; font-weight: 600;">1</td>
+              <td><span style="font-weight: 700; color: #818cf8;">100.0%</span></td>
+              <td><span class="badge badge-sent">Active</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 600;">Jane Doe</td>
+              <td style="color: var(--text-muted);">React Developer</td>
+              <td>4</td>
+              <td>0</td>
+              <td style="color: #34d399; font-weight: 600;">1</td>
+              <td><span style="font-weight: 700; color: #818cf8;">25.0%</span></td>
+              <td><span class="badge badge-sent">Active</span></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Recent Activity Table -->
+    <section class="section-card">
+      <div class="chart-title">
+        <span>Recent Outreach & Communication History</span>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Recruiter Name</th>
+              <th>Email Address</th>
+              <th>Target Role</th>
+              <th>Candidate</th>
+              <th>Timestamp</th>
+              <th>Follow-Up</th>
+              <th>Reply Status</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td style="font-weight: 500;">Followup Lead</td>
+              <td style="color: var(--accent-cyan);">followup_test_1792816826@company.com</td>
+              <td>Java Full Stack Developer</td>
+              <td>Safi</td>
+              <td style="color: var(--text-muted); font-size: 13px;">2026-10-24 10:10:26</td>
+              <td>Yes (1)</td>
+              <td><span class="badge badge-sent">Sent (Awaiting)</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 500;">Unit Recruiter</td>
+              <td style="color: var(--accent-cyan);">unit_test_1792816817@recruitcorp.com</td>
+              <td>React Developer</td>
+              <td>Jane_doe</td>
+              <td style="color: var(--text-muted); font-size: 13px;">2026-10-24 10:10:23</td>
+              <td>None</td>
+              <td><span class="badge badge-sent">Sent (Awaiting)</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 500;">Followup Lead</td>
+              <td style="color: var(--accent-cyan);">followup_test_1792816775@company.com</td>
+              <td>Java Full Stack Developer</td>
+              <td>Safi</td>
+              <td style="color: var(--text-muted); font-size: 13px;">2026-10-24 10:09:35</td>
+              <td>Yes (1)</td>
+              <td><span class="badge badge-replied">Replied</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 500;">Unit Recruiter</td>
+              <td style="color: var(--accent-cyan);">unit_test_1792816766@recruitcorp.com</td>
+              <td>React Developer</td>
+              <td>Jane_doe</td>
+              <td style="color: var(--text-muted); font-size: 13px;">2026-10-24 10:09:32</td>
+              <td>None</td>
+              <td><span class="badge badge-sent">Sent (Awaiting)</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 500;">Followup Lead</td>
+              <td style="color: var(--accent-cyan);">followup_test_1792816710@company.com</td>
+              <td>Java Full Stack Developer</td>
+              <td>Safi</td>
+              <td style="color: var(--text-muted); font-size: 13px;">2026-10-24 10:08:30</td>
+              <td>Yes (1)</td>
+              <td><span class="badge badge-sent">Sent (Awaiting)</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 500;">Unit Recruiter</td>
+              <td style="color: var(--accent-cyan);">unit_test_1792816701@recruitcorp.com</td>
+              <td>React Developer</td>
+              <td>Jane_doe</td>
+              <td style="color: var(--text-muted); font-size: 13px;">2026-10-24 10:08:26</td>
+              <td>None</td>
+              <td><span class="badge badge-sent">Sent (Awaiting)</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 500;">Amanda Chen</td>
+              <td style="color: var(--accent-cyan);">amanda.chen@kforce-tech.com</td>
+              <td>React Developer</td>
+              <td>Jane_doe</td>
+              <td style="color: var(--text-muted); font-size: 13px;">2026-10-24 09:59:26</td>
+              <td>None</td>
+              <td><span class="badge badge-replied">Replied</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 500;">Michael Roberts</td>
+              <td style="color: var(--accent-cyan);">m.roberts@apexsystems-c2c.com</td>
+              <td>Data Scientist / ML Engineer</td>
+              <td>Tanuja</td>
+              <td style="color: var(--text-muted); font-size: 13px;">2026-10-24 09:59:17</td>
+              <td>None</td>
+              <td><span class="badge badge-replied">Replied</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 500;">David Miller</td>
+              <td style="color: var(--accent-cyan);">david.miller@beaconhill-partners.com</td>
+              <td>Java Full Stack Developer</td>
+              <td>Safi</td>
+              <td style="color: var(--text-muted); font-size: 13px;">2026-10-24 09:57:51</td>
+              <td>Yes (1)</td>
+              <td><span class="badge badge-sent">Sent (Awaiting)</span></td>
+            </tr>
+
+            <tr>
+              <td style="font-weight: 500;">Sarah Jenkins</td>
+              <td style="color: var(--accent-cyan);">sarah.jenkins@teksystems-staffing.com</td>
+              <td>Java Full Stack Developer</td>
+              <td>Safi</td>
+              <td style="color: var(--text-muted); font-size: 13px;">2026-10-24 09:56:50</td>
+              <td>Yes (1)</td>
+              <td><span class="badge badge-replied">Replied</span></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Automated C2C Recruitment & Outreach Pipeline &bull; Generated dynamically</p>
+    </footer>
+  </div>
+
+  <script>
+    // Candidate Bar Chart
+    const barCtx = document.getElementById('candidateBarChart').getContext('2d');
+    new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: ["Safi Ahmed", "Tanuja Sharma", "Jane Doe"],
+        datasets: [
+          {
+            label: 'Sent Emails',
+            data: [5, 1, 4],
+            backgroundColor: 'rgba(99, 102, 241, 0.7)',
+            borderColor: '#6366f1',
+            borderWidth: 1,
+            borderRadius: 6
+          },
+          {
+            label: 'Replies Received',
+            data: [2, 1, 1],
+            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+            borderColor: '#10b981',
+            borderWidth: 1,
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: { color: '#94a3b8', font: { family: 'Inter' } }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            ticks: { color: '#94a3b8', font: { family: 'Inter' }, precision: 0 }
+          }
+        }
+      }
+    });
+
+    // Status Doughnut Chart
+    const pieCtx = document.getElementById('statusDoughnutChart').getContext('2d');
+    new Chart(pieCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ["Sent Outreach", "Pending Leads", "Replies Detected"],
+        datasets: [{
+          data: [10, 0, 4],
+          backgroundColor: [
+            'rgba(99, 102, 241, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(16, 185, 129, 0.8)'
+          ],
+          borderColor: '#172033',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#94a3b8', font: { family: 'Inter' } }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
